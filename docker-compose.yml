@@ -1,0 +1,75 @@
+services:
+
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: authdb
+    ports:
+      - "5432:5432"
+    networks:
+      - rent-network
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8088:80" 
+    depends_on:
+      - auth-db
+    volumes:
+      - ./auth-service/src:/app
+    networks:
+      - rent-network
+    command: >
+      sh -c "composer install --optimize-autoloader &&
+            cp .env.example .env &&
+            php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider" &&
+            php artisan jwt:secret &&
+            php artisan key:generate &&
+            php artisan migrate &&
+            php artisan serve --host=0.0.0.0 --port=80"
+
+  rent-db:
+    image: postgres:15
+    container_name: rent-db
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: rentdb
+    ports:
+      - "5433:5432"
+    networks:
+      - rent-network
+
+  rent-service:
+    build: ./rent-service
+    ports:
+      - "8087:80" 
+    depends_on:
+      - rent-db  
+    networks:
+      - rent-network
+    volumes:
+      - ./rent-service/src:/app
+    command: >
+      sh -c "composer install --optimize-autoloader &&
+            cp .env.example .env &&
+            php artisan key:generate &&
+            php artisan migrate &&
+            php artisan serve --host=0.0.0.0 --port=80"
+            
+  api-gateway:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - rent-service
+    networks:
+      - rent-network
+
+networks:
+  rent-network:
+    driver: bridge
