@@ -13,8 +13,6 @@ services:
 
   auth-service:
     build: ./auth-service
-    ports:
-      - "8088:80" 
     depends_on:
       - auth-db
     volumes:
@@ -43,8 +41,6 @@ services:
 
   rent-service:
     build: ./rent-service
-    ports:
-      - "8087:80" 
     depends_on:
       - rent-db  
     networks:
@@ -52,10 +48,10 @@ services:
     volumes:
       - ./rent-service/src:/app
     command: >
-      sh -c "composer install --optimize-autoloader &&
-            cp .env.example .env &&
-            php artisan key:generate &&
-            php artisan migrate &&
+      sh -c "composer install --optimize-autoloader && \
+            cp .env.example .env && \
+            php artisan key:generate && \
+            php artisan migrate && \
             php artisan serve --host=0.0.0.0 --port=80"
             
   api-gateway:

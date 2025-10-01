@@ -54,7 +54,7 @@ class AuthController extends Controller
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
-            return response()->json(['valid' => true, 'user' => $user]);
+            return response()->json(['valid' => true])->header('X-User-Id', $user->id);
         } catch (JWTException $e) {
             return response()->json(['valid' => false, 'error' => 'Token inválido ou expirado'], 401);
         }
