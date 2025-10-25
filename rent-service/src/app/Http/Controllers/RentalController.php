@@ -27,7 +27,16 @@ class RentalController extends Controller
         if (!$userId) {
             return response()->json(['error' => 'Usuário não autenticado'], 401);
         }
+        
         $location = Location::find($request->location_id);
+        // Validar se já existe uma locação ativa para este local
+        $existingActive = Rental::where('location_id', $request->location_id)
+            ->where('status', EnumRentalStatus::ACTIVE)
+            ->first();
+        if ($existingActive) {
+            return response()->json(['error' => 'Já existe uma locação ativa para este local'], 422);
+        }
+
         $duration = $request->duration_seconds;
         $start    = Carbon::now();
         $end      = (clone $start)->addSeconds($duration);
@@ -61,6 +70,8 @@ class RentalController extends Controller
             $query->where('id', $request->id);
         }
 
+        $query->orderBy('id', 'desc');
+
         $rentals = $query->get();
         return response()->json($rentals);
     }
@@ -82,7 +93,6 @@ class RentalController extends Controller
 
         $data = $request->validate([
             'end' => ['nullable', 'date_format:"d/m/Y H:i:s"'],
-            'duration' => 'nullable|integer',
             'status' => 'nullable|integer',
         ]);
 
@@ -94,11 +104,21 @@ class RentalController extends Controller
 
         // Converter 'end' para timestamp (Carbon) se enviado
         if (isset($data['end'])) {
-            $data['end'] = Carbon::createFromFormat('d/m/Y H:i:s', $data['end']);
+            $endCarbon = Carbon::createFromFormat('d/m/Y H:i:s', $data['end']);
             // Validar se end é posterior ao start
-            if ($data['end']->lessThanOrEqualTo($rental->start)) {
+            if ($endCarbon->lessThanOrEqualTo($rental->start)) {
                 return response()->json(['error' => 'A término deve ser posterior ao início'], 422);
             }
+            // Recalcular duration em segundos com base no start existente
+            if ($rental->start) {
+                $data['duration'] = $rental->start->diffInSeconds($endCarbon);
+                $data['price']    = RentalPriceBo::calculate($data['duration']);
+            } else {
+                // Caso start não esteja disponível, não permitir atualizar end
+                return response()->json(['error' => 'Start da locação não encontrado para calcular a duração'], 422);
+            }
+            // Substituir valor de end pelo Carbon convertido para garantir persistência correta
+            $data['end'] = $endCarbon;
         }
 
         $rental->update($data);
