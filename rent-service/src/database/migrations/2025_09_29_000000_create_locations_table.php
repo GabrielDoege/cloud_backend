@@ -14,6 +14,8 @@ return new class extends Migration
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             $table->text('description')->nullable();
+            $table->string('ip_equipamento')->nullable();
+            $table->integer('porta_equipamento')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

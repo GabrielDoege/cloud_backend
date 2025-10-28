@@ -35,6 +35,8 @@ class LocationController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'description' => 'nullable|string',
+            'ip_equipamento' => 'nullable|string',
+            'porta_equipamento' => 'nullable|integer',
             'is_active' => 'boolean',
         ]);
         $location = Location::create($data);
@@ -53,6 +55,8 @@ class LocationController extends Controller
             'latitude' => 'sometimes|required|numeric',
             'longitude' => 'sometimes|required|numeric',
             'description' => 'nullable|string',
+            'ip_equipamento' => 'nullable|string',
+            'porta_equipamento' => 'nullable|integer',
             'is_active' => 'boolean',
         ]);
         $location->update($data);

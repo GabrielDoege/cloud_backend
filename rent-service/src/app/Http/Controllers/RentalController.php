@@ -6,6 +6,7 @@ use App\Models\Rental;
 use App\Models\Location;
 use App\Bo\RentalPriceBo;
 use App\Enums\EnumRentalStatus;
+use App\Services\EquipamentoApiClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -30,12 +31,12 @@ class RentalController extends Controller
         
         $location = Location::find($request->location_id);
         // Validar se já existe uma locação ativa para este local
-        $existingActive = Rental::where('location_id', $request->location_id)
-            ->where('status', EnumRentalStatus::ACTIVE)
-            ->first();
-        if ($existingActive) {
-            return response()->json(['error' => 'Já existe uma locação ativa para este local'], 422);
-        }
+        // $existingActive = Rental::where('location_id', $request->location_id)
+        //     ->where('status', EnumRentalStatus::ACTIVE)
+        //     ->first();
+        // if ($existingActive) {
+        //     return response()->json(['error' => 'Já existe uma locação ativa para este local'], 422);
+        // }
 
         $duration = $request->duration_seconds;
         $start    = Carbon::now();
@@ -52,7 +53,23 @@ class RentalController extends Controller
             'status'      => EnumRentalStatus::ACTIVE
         ]);
 
-        return response()->json($rental, 201);
+        if ($this->acionarBombaEquipamento($location, $duration)) {
+            return response()->json($rental, 201);
+        } else {
+            return response()->json(['error' => 'Falha ao acionar a bomba do equipamento.'], 500);
+        }
+    }
+    
+    /**
+     * Aciona a bomba do equipamento via API
+     */
+    private function acionarBombaEquipamento(Location $location, int $tempo): bool
+    {
+        if (!$location->ip_equipamento || !$location->porta_equipamento) {
+            return false;
+        }
+
+        return EquipamentoApiClient::acionarBomba($location->ip_equipamento, $location->porta_equipamento, $tempo)['success'];
     }
 
     // Histórico de locações do usuário
@@ -94,6 +111,7 @@ class RentalController extends Controller
         $data = $request->validate([
             'end' => ['nullable', 'date_format:"d/m/Y H:i:s"'],
             'status' => 'nullable|integer',
+            'parar_bomba' => 'nullable|boolean',
         ]);
 
         if (isset($data['status'])) {
@@ -119,6 +137,13 @@ class RentalController extends Controller
             }
             // Substituir valor de end pelo Carbon convertido para garantir persistência correta
             $data['end'] = $endCarbon;
+
+            if (isset($data['parar_bomba']) && $data['parar_bomba']) {
+                $location = Location::find($rental->location_id);
+                if ($location && $location->ip_equipamento && $location->porta_equipamento) {
+                    EquipamentoApiClient::pararBomba($location->ip_equipamento, $location->porta_equipamento);
+                }                
+            }
         }
 
         $rental->update($data);

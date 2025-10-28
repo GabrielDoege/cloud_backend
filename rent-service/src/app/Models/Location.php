@@ -14,6 +14,8 @@ class Location extends Model
         'latitude',
         'longitude',
         'description',
+        'ip_equipamento',
+        'porta_equipamento',
         'is_active',
     ];
 }
