@@ -66,7 +66,7 @@ class RentalController extends Controller
     private function acionarBombaEquipamento(Location $location, int $tempo): bool
     {
         if (!$location->ip_equipamento || !$location->porta_equipamento) {
-            return false;
+            return true;
         }
 
         return EquipamentoApiClient::acionarBomba($location->ip_equipamento, $location->porta_equipamento, $tempo)['success'];

@@ -1,0 +1,31 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "auth-service/src/.env.example": true,
+        "auth-service/src/.gitattributes": true,
+        "auth-service/src/.gitignore": true,
+        "auth-service/src/artisan": true,
+        "auth-service/src/composer.lock": true,
+        "auth-service/src/package.json": true,
+        "auth-service/src/phpunit.xml": true,
+        "auth-service/src/README.md": true,
+        "auth-service/src/vite.config.js": true,
+        "auth-service/src/.editorconfig": true
+    },
+    "hide-files.files": [
+        "auth-service/src/.env.example",
+        "auth-service/src/.gitattributes",
+        "auth-service/src/.gitignore",
+        "auth-service/src/artisan",
+        "auth-service/src/composer.lock",
+        "auth-service/src/package.json",
+        "auth-service/src/phpunit.xml",
+        "auth-service/src/README.md",
+        "auth-service/src/vite.config.js",
+        "auth-service/src/.editorconfig"
+    ]
+}
