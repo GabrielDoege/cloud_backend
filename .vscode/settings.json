@@ -14,7 +14,9 @@
         "auth-service/src/phpunit.xml": true,
         "auth-service/src/README.md": true,
         "auth-service/src/vite.config.js": true,
-        "auth-service/src/.editorconfig": true
+        "auth-service/src/.editorconfig": true,
+        "README.md": true,
+        ".vscode": true
     },
     "hide-files.files": [
         "auth-service/src/.env.example",
@@ -26,6 +28,8 @@
         "auth-service/src/phpunit.xml",
         "auth-service/src/README.md",
         "auth-service/src/vite.config.js",
-        "auth-service/src/.editorconfig"
+        "auth-service/src/.editorconfig",
+        "README.md",
+        ".vscode"
     ]
 }

@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('rental_id')->unique();
-            $table->tinyInteger('rating'); // 0 a 5
+            $table->tinyInteger('rating');
             $table->text('comment')->nullable();
             $table->timestamps();
 

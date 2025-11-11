@@ -21,7 +21,7 @@ class Rental extends Model
 
     protected $casts = [
         'start' => 'datetime',
-        'end' => 'datetime',
+        'end'   => 'datetime',
     ];
 
     public function location()

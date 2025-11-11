@@ -37,9 +37,12 @@ class AuthController extends Controller
         return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
     }
 
-    // Login
-    public function login(Request $request)
-    {
+    /**
+     * Realiza o login do usuário e retorna um token JWT.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function login(Request $request) {
         $credentials = $request->only('email', 'password');
 
         try {
